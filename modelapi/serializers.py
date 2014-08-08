@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
-from quickstart.models import LANGUAGE_CHOICES, STYLE_CHOICES, Customer, Project, Component
+from modelapi.models import LANGUAGE_CHOICES, STYLE_CHOICES, Customer, Project, Component
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -16,6 +16,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 	components = serializers.RelatedField(True)
 	class Meta:
 		model= Customer
+		fields = ('id','name','revenue')
 
 class ComponentSerializer(serializers.ModelSerializer):
 	projects = serializer.RelatedField(True)
@@ -25,4 +26,10 @@ class ComponentSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Project
+
+class WorkflowSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Workflow
+
+
 
