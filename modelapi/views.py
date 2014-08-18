@@ -1,5 +1,7 @@
 # Create your views here.
-from django.contrib.auth.models import User, Group
+from modelapi.models import *
 from django.http import HttpResponse
 
-def 
+def numberOfProjects(request):
+	stage_name = request.stage
+	return HttpResponse 

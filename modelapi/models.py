@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
+import datetime
 
 CATEGORY_CHOICES = (('Comp','Components'),('Synchro','Synchronizers'),('T/c','Next Generation Transfer Cases'),('PTU','Next Trac Power Transfer Units'),('Oth','Others'))
+PRODUCTION_CHOICES = (('Bho', 'Bhosari'),('Sir', 'Sirsi'))
 
 class PossibleOpportunities(models.Model):
 	customer = models.CharField(max_length = 100, blank = False)
@@ -25,37 +27,40 @@ class Customer(models.Model):
 	def __unicode__(self):
 		return self.name
 
-class Product(models.Model):
-	name = models.CharField(max_length = 100, blank = False)
-	partId = models.CharField(default="000", max_length = 100)
-	customer = models.ForeignKey(Customer)
-	category = models.CharField(max_length = 10, choices = CATEGORY_CHOICES)
-
-	class Meta:
-		ordering = ['customer']
-	def __unicode__(self):
-		return self.name
-
 class Project(models.Model):
-	createdBy = models.ForeignKey(User)
-	created_on = models.DateTimeField(auto_now_add = True)
-	priority = models.SmallIntegerField(default= 0)
-	progress = models.IntegerField(default=0)
-	product = models.ForeignKey(Product)
-	title = models.CharField(max_length = 100)
-	price = models.IntegerField(default = 0)
-	volume = models.IntegerField(default = 0)
-	winprobability = models.IntegerField(default = 0)
-	total_revenue = models.IntegerField(default = 0)
-	pr_status = models.CharField(max_length = 100, blank = True)
-	current_status = models.CharField(max_length = 300, blank = True)
-	description = models.CharField(max_length = 800, blank = True)
-	wf_status = models.IntegerField(default = 1)
+	createdBy = models.ForeignKey(User) # Describes who is in charge of the product. Related to the User model. Auto-generated - based on session of user.
+	reference = models.CharField(max_length=70, default="DW/MKT/001") # Reference Number of the project. Should be auto-generated.
+	created_on = models.DateTimeField(auto_now_add = True) # When the project was created. Auto-populated - date and time entry was created.
+	priority = models.SmallIntegerField(default= 0) # Describes the priority of the project. High-3, Medium-2, Low-1.
+	progress = models.IntegerField(default=0) # Describes the completion stage of the project. Auto-generated depending on the workflow status.
+	product = models.CharField(max_length = 10, choices = CATEGORY_CHOICES) # Describes the category of products the customer is interested in buying.
+	customer = models.ForeignKey(Customer) # Links to the Customer model of the Project.
+	title = models.CharField(max_length = 100) # Usually the name of the product the customer is buying. Ex. Ring Gear-001, Tundra Flange.
+	volume = models.IntegerField(default = 0) # The amount of pieces supplied in a year.
+	price = models.IntegerField(default = 0) # Price per piece
+	life = models.IntegerField(default = 5) # Duration of the project
+	winprobability = models.IntegerField(default = 0) # Probability of getting the business. Out of hundred.
+	part_no = models.IntegerField(default = 0)
+	status = models.SmallIntegerField(default = 0) # Project status. 0-On-going, 1-Suspended, 2-Completed
+	edit_date = models.DateTimeField() # Latest Edit Date.
+	description = models.CharField(max_length = 800, blank = True) # Project Scope and description.
+	sopDate = models.DateTimeField() # Tentative Start-Of-Production Date.
+	pop = models.CharField(choices = PRODUCTION_CHOICES, max_length = 50) # Place of Production - Bhosari or Sirsi.
 	
 	class Meta:
 		ordering = ['created_on']
 	def __unicode__(self):
 		return self.title
+	def save(self, *args, **kwargs):
+		try:
+			edit_date = datetime.datetime.now()
+			if not self.pk:
+				year = datetime.datetime.now().year
+				number = super(Project,self).objects.filter(created_on__gte = year+'-01-01').count()+1
+				self.reference = 'DW/MKT/'+number
+			super(Project, self).save(*args, **kwargs)
+		except ObjectDoesNotExist:
+			return
 
 class Form(models.Model):
 	name = models.CharField(max_length = 100)
