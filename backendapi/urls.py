@@ -1,4 +1,5 @@
 from django.conf.urls import *
+from report.views import *
 from modelapi import views
 from modelapi.api import *
 from tastypie.api import Api
@@ -9,15 +10,17 @@ from tastypie.api import Api
 
 v1_api = Api(api_name = 'v1')
 v1_api.register(CustomerResource())
-v1_api.register(ProductResource())
+v1_api.register(TopTenResource())
 v1_api.register(ProjectResource())
 v1_api.register(WorkflowResource())
 v1_api.register(WTaskResource())
 v1_api.register(FormResource())
 v1_api.register(TaskResource())
 v1_api.register(UserResource())
+v1_api.register(RemarkResource())
 
 urlpatterns = patterns('',
+	(r'^api/v1/report/1/$', report1),
 	(r'^api/', include(v1_api.urls)),
     # Examples:
     # url(r'^$', 'backendapi.views.home', name='home'),

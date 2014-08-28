@@ -18,7 +18,7 @@ class UserResource(ModelResource):
 		queryset = User.objects.all()
 		resource_name = 'user'
 		authorization = Authorization()
-		fields = ['username']
+		fields = ['username','first_name']
 		filtering = {
 			'username': ALL,
 		}
@@ -29,30 +29,32 @@ class CustomerResource(ModelResource):
 		queryset = Customer.objects.all()
 		resource_name = 'customer'
 		authorization = Authorization()
+		fields = ['name','id']
 		filtering = {
 			'id': ALL,
-		}
-
-# Category of products being shipped such as Transfer Case, Synchronizers, etc.
-class ProductResource(ModelResource):
-	customer = fields.ForeignKey(CustomerResource,'customer')
-	class Meta:
-		queryset = Product.objects.all()
-		resource_name = 'product'
-		authorization = Authorization()
-		filtering = {
-			'customer': ALL_WITH_RELATIONS
+			'name': ALL
 		}
 
 # On-going, completed and suspended projects 
 class ProjectResource(ModelResource):
-	product = fields.ForeignKey(ProductResource, 'product')
+	customer = fields.ToOneField(CustomerResource, 'customer', full=True)
 	createdBy = fields.ToOneField(UserResource, 'createdBy', full=True)
 	class Meta:
 		queryset = Project.objects.all()
 		resource_name = 'project'
 		authorization = Authorization()
-
+		filtering = {
+			"id": ALL_WITH_RELATIONS,
+			"winprobability": ALL,
+			"sopDate": ALL,
+			"status":ALL,
+		}
+class TopTenResource(ModelResource):
+	customer = fields.ToOneField(CustomerResource, 'customer', full=True)
+	createdBy = fields.ToOneField(UserResource, 'createdBy', full=True)
+	class Meta:
+		queryset = Project.objects.extra(select={'revenue':'price*volume*life'},order_by=('-revenue',))
+		resource_name = 'topten'
 class FormResource(ModelResource):
 	class Meta:
 		queryset = Form.objects.all()
@@ -64,6 +66,12 @@ class WorkflowResource(ModelResource):
 		queryset = Workflow.objects.all()
 		resource_name = 'workflow'
 		authorization = Authorization()
+		filtering = {
+			'stage': ALL
+		}
+		ordering = {
+			'stage': ALL
+		}
 
 class WTaskResource(ModelResource):
 	workflow = fields.ForeignKey(WorkflowResource, 'workflow')
@@ -73,11 +81,24 @@ class WTaskResource(ModelResource):
 		authorization = Authorization()
 
 class TaskResource(ModelResource):
-	assigned_to = fields.ForeignKey(UserResource,'user')
-	assigned_by = fields.ForeignKey(UserResource,'user')
-	wtask = fields.ForeignKey(WTaskResource, 'workflow_task')
+	project = fields.ToOneField(ProjectResource, 'project', full=True)
+	workflow = fields.ToOneField(WorkflowResource, 'workflow', full=True)
 
 	class Meta:
-		queryset = Workflow.objects.all()
+		queryset = Task.objects.all()
 		resource_name = 'task'
 		authorization = Authorization()
+		filtering = {
+			'project': ALL_WITH_RELATIONS
+		}
+
+class RemarkResource(ModelResource):
+	createdBy = fields.ToOneField(UserResource, 'createdBy', full=True)
+	project = fields.ToOneField(ProjectResource, 'project', full=True)
+	class Meta:
+		queryset = Remark.objects.all()
+		resource_name = 'remark'
+		authorization = Authorization()
+		filtering = {
+			'project' :ALL_WITH_RELATIONS
+		}
