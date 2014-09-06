@@ -39,6 +39,7 @@ class CustomerResource(ModelResource):
 class ProjectResource(ModelResource):
 	customer = fields.ToOneField(CustomerResource, 'customer', full=True)
 	createdBy = fields.ToOneField(UserResource, 'createdBy', full=True)
+	tasks = fields.ToManyField('modelapi.api.TaskResource', 'tasks',full=True,null=True)
 	class Meta:
 		queryset = Project.objects.all()
 		resource_name = 'project'
@@ -48,6 +49,7 @@ class ProjectResource(ModelResource):
 			"winprobability": ALL,
 			"sopDate": ALL,
 			"status":ALL,
+			"product":ALL
 		}
 class TopTenResource(ModelResource):
 	customer = fields.ToOneField(CustomerResource, 'customer', full=True)
@@ -55,6 +57,9 @@ class TopTenResource(ModelResource):
 	class Meta:
 		queryset = Project.objects.extra(select={'revenue':'price*volume*life'},order_by=('-revenue',))
 		resource_name = 'topten'
+		filtering = {
+			'status':ALL
+		}
 class FormResource(ModelResource):
 	class Meta:
 		queryset = Form.objects.all()
@@ -81,7 +86,7 @@ class WTaskResource(ModelResource):
 		authorization = Authorization()
 
 class TaskResource(ModelResource):
-	project = fields.ToOneField(ProjectResource, 'project', full=True)
+	project = fields.ForeignKey(ProjectResource,'project')
 	workflow = fields.ToOneField(WorkflowResource, 'workflow', full=True)
 
 	class Meta:
@@ -89,7 +94,8 @@ class TaskResource(ModelResource):
 		resource_name = 'task'
 		authorization = Authorization()
 		filtering = {
-			'project': ALL_WITH_RELATIONS
+			'project': ALL_WITH_RELATIONS,
+			'workflow':ALL_WITH_RELATIONS
 		}
 
 class RemarkResource(ModelResource):
@@ -102,3 +108,15 @@ class RemarkResource(ModelResource):
 		filtering = {
 			'project' :ALL_WITH_RELATIONS
 		}
+
+# Opportunity Progress Checklist
+class OPCResource(ModelResource):
+	project = fields.ToOneField(ProjectResource, 'project', full=True)
+	class Meta:
+		queryset = OppProChe.objects.all()
+		resource_name = 'opc'
+		authorization = Authorization()
+		filtering = {
+			'project': ALL_WITH_RELATIONS
+		}
+

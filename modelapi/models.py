@@ -3,7 +3,15 @@ from django.contrib.auth.models import User, Group
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
-CATEGORY_CHOICES = (('Comp','Components'),('Synchro','Synchronizers'),('T/c','Next Generation Transfer Cases'),('PTU','Next Trac Power Transfer Units'),('Oth','Others'))
+CATEGORY_CHOICES = (
+	('WTC','World Transfer Cases'),
+	('ACE','ACE'),
+	('Comp','Components (Exports/Domestic)'),
+	('Synchro','Synchronizers'),
+	('NTC','Next Generation Platforms/Transfer Cases'),
+	('PTU','Nextrac/ Power Transfer Units'),
+	('Oth','Others')
+)
 PRODUCTION_CHOICES = (('Bho', 'Bhosari'),('Sir', 'Sirsi'))
 
 class PossibleOpportunities(models.Model):
@@ -36,7 +44,7 @@ class Project(models.Model):
 	created_on = models.DateTimeField(auto_now_add = True) # Records when the project was created. Auto-populated.
 	priority = models.SmallIntegerField(default= 0) # Describes the priority of the project. High-3, Medium-2, Low-1.
 	progress = models.IntegerField(default=0) # Describes the completion stage of the project. Auto-generated depending on the workflow status.
-	product = models.CharField(max_length = 10, choices = CATEGORY_CHOICES) # Describes the category of products the customer is interested in buying.
+	product = models.CharField(max_length = 50, choices = CATEGORY_CHOICES) # Describes the category of products the customer is interested in buying.
 	customer = models.ForeignKey(Customer) # Links to the Customer model of the Project.
 	title = models.CharField(max_length = 100) # Usually the name of the product the customer is buying. Ex. Ring Gear-001, Tundra Flange.
 	volume = models.IntegerField(default = 0) # The amount of pieces supplied in a year.
@@ -49,6 +57,8 @@ class Project(models.Model):
 	description = models.CharField(max_length = 800, blank = True) # Project Scope and description.
 	sopDate = models.DateTimeField() # Tentative Start-Of-Production Date.
 	pop = models.CharField(choices = PRODUCTION_CHOICES, max_length = 50) # Place of Production - Bhosari or Sirsi.
+	tot_revenue = models.IntegerField(blank=True,null=True)
+	year_revenue = models.IntegerField(blank=True,null=True)
 	
 	class Meta:
 		ordering = ['created_on']
@@ -57,6 +67,8 @@ class Project(models.Model):
 	def save(self, *args, **kwargs):
 		try:
 			self.edit_date = datetime.datetime.now()
+			self.tot_revenue = self.price*self.volume*self.life
+			self.year_revenue = self.price*self.volume
 			if not self.pk:
 				year = str(datetime.datetime.now().year)
 				number = Project.objects.filter(created_on__gte = year+'-01-01').count()+1
@@ -65,6 +77,26 @@ class Project(models.Model):
 		except ObjectDoesNotExist:
 			return
 
+class OppProChe(models.Model):
+	project = models.ForeignKey(Project)
+	NDA = models.NullBooleanField(default=False, blank=True,null=True)
+	PDS = models.NullBooleanField(default=False, blank=True,null=True)
+	PFR = models.NullBooleanField(default=False, blank=True,null=True)
+	NBO = models.NullBooleanField(blank=True,default=False, null=True)
+	TFC = models.NullBooleanField(blank=True,default=False, null=True)
+	IRS = models.NullBooleanField(blank=True,default=False, null=True)
+	FRS = models.NullBooleanField(blank=True,default=False, null=True)
+	ProjectApproved = models.NullBooleanField(blank=True,default=False, null=True)
+	QUO = models.NullBooleanField(blank=True,default=False, null=True)
+	LOI = models.NullBooleanField(blank=True,default=False, null=True)
+	CCRecieve = models.NullBooleanField(blank=True,default=False, null=True)
+	CCReview = models.NullBooleanField(blank=True,default=False, null=True)
+	CCFrozen = models.NullBooleanField(blank=True,default=False, null=True)
+	PPAPPORecieve = models.NullBooleanField(blank=True,default=False, null=True)
+	PPAPPOReview = models.NullBooleanField(blank=True,default=False, null=True)
+	POAccepted = models.NullBooleanField(blank=True,default=False, null=True)
+	def __unicode__(self):
+		return self.project
 # Daily Commentory on the Project
 class Remark(models.Model):
 	createdBy = models.ForeignKey(User) # Links to the User who wrote the remark. Auto-generated - based on session of user.
@@ -107,24 +139,25 @@ class WTask(models.Model):
 		return self.name
 
 class Task(models.Model): 
-	name = models.CharField(max_length = 100)
-	description = models.CharField(max_length = 800)
-	start_date = models.DateTimeField(auto_now_add = True)
-	due_date = models.DateTimeField()
-	end_date = models.DateTimeField(blank = True)
 	workflow = models.ForeignKey(Workflow)
-	project = models.ForeignKey(Project)
+	project = models.ForeignKey(Project, related_name="tasks")
+	start_date = models.DateTimeField(default=datetime.datetime.now,blank=True)
+	due_date = models.DateTimeField()
+	end_date = models.DateTimeField(blank=True,null=True)
+	description = models.CharField(max_length = 800)
+	remarks = models.CharField(max_length = 100)
 	class Meta:
 		ordering = ['project','start_date']
+		unique_together = (('workflow','project'),)
 	def __unicode__(self):
-		return self.project
+		return self.project.title
 	
 class STask(models.Model):
 	name = models.CharField(max_length = 100)
 	description = models.CharField(max_length = 800)
-	start_date = models.DateTimeField(auto_now_add = True)
+	start_date = models.DateTimeField(default=datetime.datetime.now,blank=True)
 	due_date = models.DateTimeField()
-	end_date = models.DateTimeField(blank = True)
+	end_date = models.DateTimeField(blank = True,null=True)
 	task = models.ForeignKey(Task)
 	wtask = models.ForeignKey(WTask)
 	assigned_to = models.ForeignKey(User, related_name = "assigned_to")
@@ -132,3 +165,4 @@ class STask(models.Model):
 	identification = models.CharField(max_length = 50)
 	def __unicode__(self):
 		return self.name
+

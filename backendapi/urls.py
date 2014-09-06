@@ -10,6 +10,7 @@ from tastypie.api import Api
 
 v1_api = Api(api_name = 'v1')
 v1_api.register(CustomerResource())
+v1_api.register(OPCResource())
 v1_api.register(TopTenResource())
 v1_api.register(ProjectResource())
 v1_api.register(WorkflowResource())
@@ -20,8 +21,10 @@ v1_api.register(UserResource())
 v1_api.register(RemarkResource())
 
 urlpatterns = patterns('',
-	(r'^api/v1/report/1/$', report1),
+	(r'^api/v1/dashboard/$', dashboard),
 	(r'^api/', include(v1_api.urls)),
+	(r'^dbcreate/$',createdb),
+	(r'^taskcreate/$',tasksave),
     # Examples:
     # url(r'^$', 'backendapi.views.home', name='home'),
     # url(r'^backendapi/', include('backendapi.foo.urls')),
