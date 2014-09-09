@@ -11,7 +11,6 @@ from tastypie.api import Api
 v1_api = Api(api_name = 'v1')
 v1_api.register(CustomerResource())
 v1_api.register(OPCResource())
-v1_api.register(TopTenResource())
 v1_api.register(ProjectResource())
 v1_api.register(WorkflowResource())
 v1_api.register(WTaskResource())

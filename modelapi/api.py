@@ -51,15 +51,10 @@ class ProjectResource(ModelResource):
 			"status":ALL,
 			"product":ALL
 		}
-class TopTenResource(ModelResource):
-	customer = fields.ToOneField(CustomerResource, 'customer', full=True)
-	createdBy = fields.ToOneField(UserResource, 'createdBy', full=True)
-	class Meta:
-		queryset = Project.objects.extra(select={'revenue':'price*volume*life'},order_by=('-revenue',))
-		resource_name = 'topten'
-		filtering = {
-			'status':ALL
+		ordering = {
+			"tot_revenue":ALL
 		}
+
 class FormResource(ModelResource):
 	class Meta:
 		queryset = Form.objects.all()

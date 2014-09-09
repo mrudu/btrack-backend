@@ -97,6 +97,51 @@ class OppProChe(models.Model):
 	POAccepted = models.NullBooleanField(blank=True,default=False, null=True)
 	def __unicode__(self):
 		return self.project
+	def save(self, *args, **kwargs):
+		if self.PFR:
+			if not self.PDS:
+				return
+		if self.NBO:
+			if not self.PFR:
+				return
+		if self.TFC:
+			if not self.NBO:
+				return
+		if self.IRS:
+			if not self.TFC:
+				return
+		if self.FRS:
+			if not self.IRS:
+				return
+		if self.ProjectApproved:
+			if not self.FRS:
+				return
+		if self.QUO:
+			if not self.ProjectApproved:
+				return
+		if self.LOI:
+			if not self.QUO:
+				return
+		if self.CCRecieve:
+			if not self.LOI:
+				return
+		if self.CCReview:
+			if not self.CCRecieve:
+				return
+		if self.CCFrozen:
+			if not self.CCReview:
+				return
+		if self.PPAPPORecieve:
+			if not self.CCFrozen:
+				return
+		if self.PPAPPOReview:
+			if not self.PPAPPORecieve:
+				return
+		if self.POAccepted:
+			if not self.PPAPPOReview:
+				return	
+		super(OppProChe, self).save(*args, **kwargs)
+
 # Daily Commentory on the Project
 class Remark(models.Model):
 	createdBy = models.ForeignKey(User) # Links to the User who wrote the remark. Auto-generated - based on session of user.

@@ -44,8 +44,7 @@ def createdb(request):
 	x = []
 	reader = csv.reader(csvfile)
 	for row in reader:
-		for z in row:
-			x.append(z.split("\t"))
+		x.append(row)
 	print x
 	for row in x:
 		p = Project()
