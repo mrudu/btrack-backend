@@ -33,13 +33,13 @@ def dashboard(request):
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def createdb(request):
-	w = Workflow.objects.get_or_create(name="RFQ/ENQ",stage=1)
-	w = Workflow.objects.get_or_create(name="NBO",stage=2)
-	w = Workflow.objects.get_or_create(name="QUOTE",stage=3)
-	w = Workflow.objects.get_or_create(name="IPO",stage=4)
-	w = Workflow.objects.get_or_create(name="PPAP",stage=5)
-	w = Workflow.objects.get_or_create(name="FPO",stage=6)
-	w = Workflow.objects.get_or_create(name="FRS",stage=7)
+	w = Workflow.objects.get_or_create(name="RFQ/ENQ",stage=1,description="Request for Quote/Enquiry")
+	w = Workflow.objects.get_or_create(name="NBO",stage=2,description="New Business Opportunity")
+	w = Workflow.objects.get_or_create(name="QUOTE",stage=3,description="Quotation submitted to Customer")
+	w = Workflow.objects.get_or_create(name="IPO",stage=4,description="Initial Purchase Order")
+	w = Workflow.objects.get_or_create(name="PPAP",stage=5,description="Part Production Approval Process")
+	w = Workflow.objects.get_or_create(name="FPO",stage=6,description="Final Purchase Order")
+	w = Workflow.objects.get_or_create(name="FRS",stage=7,description="First Revenue Shipment")
 	csvfile = open('projectdata.csv','rb')
 	x = []
 	reader = csv.reader(csvfile)
@@ -139,3 +139,15 @@ def tasksave(request):
 		frs = dae[2]+'-'+dae[0]+'-'+dae[1]
 		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=7),start_date=frs,end_date=frs,due_date=frs,description="actualdata",remarks="actualdata")
 	return HttpResponse(str(x))
+
+def statusUpdate(request):
+	today = datetime.datetime.now()
+	p = Project.objects.all().distinct()
+	p.update(late_status=0)
+	p = Project.objects.filter(tasks__end_date__isnull=True, tasks__due_date__lte=(today+datetime.timedelta(days=7))).distinct()
+	p.update(late_status=1)
+	p = Project.objects.filter(tasks__end_date__isnull=True, tasks__due_date__lte=today).distinct()
+	p.update(late_status=2)
+	p = Project.objects.filter(tasks__end_date__isnull=True, tasks__due_date__lt=(today-datetime.timedelta(days=1))).distinct()
+	p.update(late_status=3)
+	return HttpResponse("200")
