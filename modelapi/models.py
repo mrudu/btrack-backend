@@ -59,6 +59,7 @@ class Project(models.Model):
 	pop = models.CharField(choices = PRODUCTION_CHOICES, max_length = 50) # Place of Production - Bhosari or Sirsi.
 	tot_revenue = models.IntegerField(blank=True,null=True)
 	year_revenue = models.IntegerField(blank=True,null=True)
+	late_status = models.IntegerField(default = 0)
 	
 	class Meta:
 		ordering = ['created_on']
