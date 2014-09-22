@@ -43,7 +43,7 @@ class Project(models.Model):
 	createdBy = models.ForeignKey(User) # Describes who is in charge of the product. Related to the User model. Auto-generated - based on session of user.
 	created_on = models.DateTimeField(auto_now_add = True) # Records when the project was created. Auto-populated.
 	priority = models.SmallIntegerField(default= 0) # Describes the priority of the project. High-3, Medium-2, Low-1.
-	progress = models.IntegerField(default=0) # Describes the completion stage of the project. Auto-generated depending on the workflow status.
+	progress = models.IntegerField(default=0) # Shows the number of days by which the project has been delayed.
 	product = models.CharField(max_length = 50, choices = CATEGORY_CHOICES) # Describes the category of products the customer is interested in buying.
 	customer = models.ForeignKey(Customer) # Links to the Customer model of the Project.
 	title = models.CharField(max_length = 100) # Usually the name of the product the customer is buying. Ex. Ring Gear-001, Tundra Flange.

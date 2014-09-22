@@ -100,44 +100,50 @@ def tasksave(request):
 		if row[1] == "":
 			continue
 		dae = row[1].split("/")
-		enq = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=1),start_date=enq,end_date=enq,due_date=enq,description="actualdata",remarks="actualdata")
+		enq = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		enqp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=1),start_date=(enq-datetime.timedelta(days=7)),end_date=enq,description="stage",remarks="To be verified.",due_date=enq)
 		if row[2] == "":
+			nbo = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=2),due_date=(enq+datetime.timedelta(days=30)),start_date=enq,description="stage",remarks="To be verified.")
 			continue
 		dae = row[2].split("/")
-		nbo = dae[2]+'-'+dae[0]+'-'+dae[1]
-		nbo = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=2),start_date=nbo,end_date=nbo,due_date=nbo,description="actualdata",remarks="actualdata")
+		nbo = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		nbop = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=2),end_date=nbo,due_date=nbo,start_date=enq,description="stage",remarks="NBO Appproved.Work on Quote begun")
 		if row[3] == "":
+			quotep = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=3),start_date=nbo,due_date=nbo,description="stage",remarks="Final Quote yet to be submitted.")
 			continue
 		dae = row[3].split("/")
 		quote = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=3),start_date=quote,end_date=quote,due_date=quote,description="actualdata",remarks="actualdata")
+		quote = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		quotep = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=3),start_date=nbo,end_date=quote,due_date=quote,description="stage",remarks="Final Quote submitted. Waiting for Initial Purchase Order.")
 		if row[4] == "":
+			ipop = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=4),start_date=quote,due_date=(quote+datetime.timedelta(days=7)),description="milestone",remarks="Initial Purchase Order not recieved.")
 			continue
 		dae = row[4].split("/")
-		ipo = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=4),start_date=ipo,end_date=ipo,due_date=ipo,description="actualdata",remarks="actualdata")
+		ipo = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		ipop = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=4),start_date=quote,end_date=ipo,due_date=ipo,description="milestone",remarks="Initial Purchase Order Recieved. Work on PPAP has begun.")
 		if row[5] == "":
+			ppapp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=5),start_date=ipo,due_date=(ipo+datetime.timedelta(days=7)),description="stage",remarks="PPAP not yet submitted.")
 			continue
-		dae = row[5].split("/")
-		ppap_start = dae[2]+'-'+dae[0]+'-'+dae[1]
 		if row[6] == "":
-			ppap_end = datetime.datetime.now()
-			enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=5),start_date=ppap_start,end_date=ppap_end,due_date=ppap_end,description="actualdata",remarks="actualdata")
+			ppapp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=5),start_date=ipo,due_date=(ipo+datetime.timedelta(days=30)),description="stage",remarks="PPAP submitted on "+row[5]+". Waiting for Approval.")
 			continue
 		dae = row[6].split("/")
-		ppap_end = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=5),start_date=ppap_start,end_date=ppap_end,due_date=ppap_end,description="actualdata",remarks="actualdata")
+		ppap_end = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		ppapp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=5),start_date=ipo,end_date=ppap_end,due_date=ppap_end,description="stage",remarks="PPAP Approved. Waiting for Final Purchase Order.")
 		if row[7] == "":
+			fpop = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=6),start_date=ppap_end,due_date=(ppap_end+datetime.timedelta(days=20)),description="milestone",remarks="Final Purchase Order not Recieved.")
 			continue
 		dae = row[7].split("/")
-		fpo = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=6),start_date=fpo,end_date=fpo,due_date=fpo,description="actualdata",remarks="actualdata")
+		fpo = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		fpop = Task.objects.create(project=project,workflow=Workflow.objects.get(pk=6),start_date=ppap_end,end_date=fpo,due_date=fpo,description="milestone",remarks="Final Purchase Order Recieved. Production has started.")
 		if row[8] == "":
+			frsp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=7),start_date=fpo,due_date=(fpo_end+datetime.timedelta(days=30)),description="milestone",remarks="First Shipment is yet to happen.")
 			continue
 		dae = row[8].split("/")
-		frs = dae[2]+'-'+dae[0]+'-'+dae[1]
-		enq = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=7),start_date=frs,end_date=frs,due_date=frs,description="actualdata",remarks="actualdata")
+		frs = datetime.datetime(int(dae[2]),int(dae[0]),int(dae[1]))
+		frsp = Task.objects.create(project=project,workflow =Workflow.objects.get(pk=7),start_date=fpo,end_date=frs,due_date=frs,description="milestone",remarks="FRS has happened. Project has been completed.")
+		project.status = 2
+		project.save()
 	return HttpResponse(str(x))
 
 def statusUpdate(request):
@@ -151,3 +157,16 @@ def statusUpdate(request):
 	p = Project.objects.filter(tasks__end_date__isnull=True, tasks__due_date__lt=(today-datetime.timedelta(days=1))).distinct()
 	p.update(late_status=3)
 	return HttpResponse("200")
+
+def progressUpdate(request):
+	projects = Project.objects.all()
+	for p in projects:
+		count = 0
+		for t in p.tasks.all():
+			if t.end_date:
+				if t.end_date>t.due_date:
+					count += (t.end_date-t.due_date).days()
+			elif t.due_date<datetime.datetime.now():
+				count += (datetime.datetime.now()-t.due_date).days()
+		p.progress = count
+		p.save()
