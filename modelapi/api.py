@@ -49,7 +49,8 @@ class ProjectResource(ModelResource):
 			"winprobability": ALL,
 			"sopDate": ALL,
 			"status":ALL,
-			"product":ALL
+			"product":ALL,
+			"tasks":ALL_WITH_RELATIONS
 		}
 		ordering = {
 			"tot_revenue":ALL
@@ -67,7 +68,8 @@ class WorkflowResource(ModelResource):
 		resource_name = 'workflow'
 		authorization = Authorization()
 		filtering = {
-			'stage': ALL
+			'stage': ALL,
+			'id':ALL_WITH_RELATIONS,
 		}
 		ordering = {
 			'stage': ALL
@@ -90,7 +92,9 @@ class TaskResource(ModelResource):
 		authorization = Authorization()
 		filtering = {
 			'project': ALL_WITH_RELATIONS,
-			'workflow':ALL_WITH_RELATIONS
+			'workflow':ALL_WITH_RELATIONS,
+			'id':ALL_WITH_RELATIONS,
+			'end_date':ALL_WITH_RELATIONS,
 		}
 
 class RemarkResource(ModelResource):

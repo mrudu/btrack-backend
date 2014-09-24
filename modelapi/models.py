@@ -57,8 +57,8 @@ class Project(models.Model):
 	description = models.CharField(max_length = 800, blank = True) # Project Scope and description.
 	sopDate = models.DateTimeField() # Tentative Start-Of-Production Date.
 	pop = models.CharField(choices = PRODUCTION_CHOICES, max_length = 50) # Place of Production - Bhosari or Sirsi.
-	tot_revenue = models.IntegerField(blank=True,null=True)
-	year_revenue = models.IntegerField(blank=True,null=True)
+	tot_revenue = models.BigIntegerField(blank=True,null=True)
+	year_revenue = models.BigIntegerField(blank=True,null=True)
 	late_status = models.IntegerField(default = 0)
 	
 	class Meta:

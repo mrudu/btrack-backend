@@ -21,6 +21,7 @@ v1_api.register(RemarkResource())
 
 urlpatterns = patterns('',
 	(r'^api/v1/progressupdate/$', progressUpdate),
+	(r'^api/v1/cpc/$', categoryPieChart),
 	(r'^api/v1/statusupdate/$',statusUpdate),
 	(r'^api/v1/dashboard/$', dashboard),
 	(r'^api/', include(v1_api.urls)),
