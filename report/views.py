@@ -89,6 +89,8 @@ def createdb(request):
 		p.status = int(row[8])
 		if p.status == 1:
 			p.late_status = 4
+		elif p.status == 3:
+			p.late_status = 5
 		p.priority = 3
 		p.pop = 'Bho'
 		p.life=5
@@ -159,20 +161,19 @@ def tasksave(request):
 
 def statusUpdate(request):
 	today = datetime.datetime.now()
-	projects = Project.objects.filter(tasks__end_date__isnull=True).exclude(late_status=4).distinct()
-	for p in projects:
-		t = p.tasks.get(end_date__isnull=True)
-		if t.due_date <= today-datetime.timedelta(days=1):
+	tomor = today + datetime.timedelta(days=1)
+	tasks = Task.objects.filter(end_date__isnull=True).exclude(project__status = 1)
+	for t in tasks:
+		p = Project.objects.get(id=t.project.id)
+		if t.due_date.date() <= today.date():
 			p.late_status = 3
-		elif t.due_date <= today:
+		elif t.due_date.date() <= tomor.date():
 			p.late_status = 2
-		elif t.due_date <=today+datetime.timedelta(days=7):
+		elif t.due_date.date() <=(today+datetime.timedelta(days=7)).date():
 			p.late_status = 1
 		else:
 			p.late_status = 0
 		p.save()
-	p4 = Project.objects.filter(tasks__end_date__isnull=False).exclude(id__in=projects.values('id')).exclude(late_status=4)
-	p4.update(late_status=0)
 	return HttpResponse("200")
 
 def categoryPieChart(request):
