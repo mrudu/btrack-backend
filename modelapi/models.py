@@ -10,9 +10,12 @@ CATEGORY_CHOICES = (
 	('Synchro','Synchronizers'),
 	('NTC','Next Generation Platforms/Transfer Cases'),
 	('PTU','Nextrac/ Power Transfer Units'),
+	('DEF','Defense'),
+	('eGear','eGear'),
 	('Oth','Others')
 )
 PRODUCTION_CHOICES = (('Bho', 'Bhosari'),('Sir', 'Sirsi'))
+GENERATED_CHOICES = (('S','Self Generated'),('C','Customer Generated'))
 
 class PossibleOpportunities(models.Model):
 	customer = models.CharField(max_length = 100, blank = False)
@@ -42,7 +45,7 @@ class Project(models.Model):
 	reference = models.CharField(max_length=70, default="DW/MKT/001") # Reference Number of the project. Should be auto-generated.
 	createdBy = models.ForeignKey(User) # Describes who is in charge of the product. Related to the User model. Auto-generated - based on session of user.
 	created_on = models.DateTimeField(auto_now_add = True) # Records when the project was created. Auto-populated.
-	priority = models.SmallIntegerField(default= 0) # Describes the priority of the project. High-3, Medium-2, Low-1.
+	generated = models.CharField(max_length=1,choices= GENERATED_CHOICES) # Describes whether the project is Self Generated or Customer Generated.
 	progress = models.IntegerField(default=0) # Shows the number of days by which the project has been delayed.
 	product = models.CharField(max_length = 50, choices = CATEGORY_CHOICES) # Describes the category of products the customer is interested in buying.
 	customer = models.ForeignKey(Customer) # Links to the Customer model of the Project.
@@ -51,7 +54,7 @@ class Project(models.Model):
 	price = models.IntegerField(default = 0) # Price per piece
 	life = models.IntegerField(default = 5) # Duration of the project
 	winprobability = models.IntegerField(default = 0) # Probability of getting the business. Out of hundred.
-	part_no = models.CharField(default = "000", max_length=100)
+	part_no = models.CharField(default = "000", max_length=100) # Part Number of the Product getting Manufactured.
 	status = models.SmallIntegerField(default = 0) # Project status. 0-On-going, 1-Suspended, 2-Completed
 	edit_date = models.DateTimeField(blank=True) # Latest Edit Date.
 	description = models.CharField(max_length = 800, blank = True) # Project Scope and description.
@@ -193,10 +196,18 @@ class Task(models.Model):
 	description = models.CharField(max_length = 800)
 	remarks = models.CharField(max_length = 100)
 	class Meta:
-		ordering = ['project','start_date']
+		ordering = ['project','end_date']
 		unique_together = (('workflow','project'),)
 	def __unicode__(self):
 		return self.project.title
+	def save(self, *args, **kwargs):
+		project = Project.objects.get(pk=self.project_id)
+		user = User.objects.get(pk=1)
+		workflow = Workflow.objects.get(pk=self.workflow_id)
+		content = workflow.name+": "+self.remarks
+		r = Remark.objects.create(createdBy=user,content=content,project=project)
+		super(Task, self).save(*args, **kwargs)
+
 	
 class STask(models.Model):
 	name = models.CharField(max_length = 100)

@@ -18,7 +18,7 @@ class UserResource(ModelResource):
 		queryset = User.objects.all()
 		resource_name = 'user'
 		authorization = Authorization()
-		fields = ['username','first_name']
+		fields = ['username','first_name','id']
 		filtering = {
 			'username': ALL,
 		}
@@ -87,7 +87,7 @@ class TaskResource(ModelResource):
 	workflow = fields.ToOneField(WorkflowResource, 'workflow', full=True)
 
 	class Meta:
-		queryset = Task.objects.all()
+		queryset = Task.objects.extra(select={'date_is_null':'end_date IS NULL'},order_by=['date_is_null','end_date'])
 		resource_name = 'task'
 		authorization = Authorization()
 		filtering = {

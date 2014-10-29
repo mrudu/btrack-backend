@@ -1,6 +1,6 @@
 from django.conf.urls import *
 from report.views import *
-from modelapi import views
+from modelapi.views import *
 from modelapi.api import *
 from tastypie.api import Api
 
@@ -20,6 +20,7 @@ v1_api.register(UserResource())
 v1_api.register(RemarkResource())
 
 urlpatterns = patterns('',
+	(r'^api/v1/salesmanmatrix/$', usermatrix),
 	(r'^api/v1/progressupdate/$', progressUpdate),
 	(r'^api/v1/cpc/$', categoryPieChart),
 	(r'^api/v1/statusupdate/$',statusUpdate),
@@ -27,6 +28,7 @@ urlpatterns = patterns('',
 	(r'^api/', include(v1_api.urls)),
 	(r'^dbcreate/$',createdb),
 	(r'^taskcreate/$',tasksave),
+	(r'^download/$',backup),
     # Examples:
     # url(r'^$', 'backendapi.views.home', name='home'),
     # url(r'^backendapi/', include('backendapi.foo.urls')),
