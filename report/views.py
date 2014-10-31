@@ -4,7 +4,7 @@ from modelapi.models import Project, Task, Workflow, Customer, User, OppProChe
 import json, csv, datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
-import random
+from django.core.mail import send_mail
 
 # View for the Salesman Matrix Page. URL:/api/v1/salesmanmatrix
 def usermatrix(request):
@@ -16,13 +16,13 @@ def usermatrix(request):
 		completed = total.filter(status = 2).count()
 		active = total.filter(status = 0).count()
 		suspended = total.count()-(completed + active)
-		tc = p.filter(product="NTC").count()
-		syn = p.filter(product="Synchro").count()
-		ptu = p.filter(product="PTU").count()
-		comp = p.filter(product="Comp").count()
-		ace = p.filter(product="ACE").count()
-		wtc = p.filter(product="WTC").count()
-		oth = p.filter(product="Oth").count()
+		tc = total.filter(product="NTC").count()
+		syn = total.filter(product="Synchro").count()
+		ptu = total.filter(product="PTU").count()
+		comp = total.filter(product="Comp").count()
+		ace = total.filter(product="ACE").count()
+		wtc = total.filter(product="WTC").count()
+		oth = total.filter(product="Oth").count()
 		data[x.id] = {'name':x.first_name,'username':x.username,'id':x.id,'tot':total.count(),'com':completed,'sus':suspended,'act':active,'tc':tc,'syn':syn,'ptu':ptu,'comp':comp,'ace':ace,'wtc':wtc,'oth':oth}
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -98,3 +98,18 @@ def progressUpdate(request):
 				count += (datetime.datetime.now()-t.due_date).days()
 		p.progress = count
 		p.save()
+
+def activityCheck(request):
+	projects = Project.objects.all()
+	today = datetime.datetime.now().date()
+	for p in projects:
+		latest = p.remark_set.latest('created_on').date()
+		delay = (today-latest).days
+		if delay%15 == 0 and delay == 15:
+			subject = "ATTENTION: "+p.title
+			message = "Note: This mail is system generated. Please do not reply. The Project "+ p.title+" has not been attended to for the last "+delay+" days. Project Owner: "+p.createdBy.first_name
+			send_mail(subject,message,"sales@divig-warner.com",[p.createdBy.email],fail_silently=False)
+		elif delay%15 == 0:
+			subject = "ATTENTION: "+p.title
+			message = "Note: This mail is system generated. Please do not reply. The Project "+ p.title+" has not been attended to for the last "+delay+" days. Project Owner: "+p.createdBy.first_name
+			send_mail(subject,message,"sales@divig-warner.com",[p.createdBy.email,'amkoppikar@divgi-warner.com'],fail_silently=False)

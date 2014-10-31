@@ -1,22 +1,40 @@
 # Create your views here.
 from modelapi.models import *
 from django.http import HttpResponse
-import csv
+import csv,datetime,random
 from dateutil import relativedelta
-import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
+TODAY = datetime.datetime.now()
 # View which returns a csv file of the project and respective task dates in the Database.
-def backup(request):
+def backup(request, urltype = ""):
 	response = HttpResponse(content_type = 'text/csv')
-	response['Content-Disposition'] = 'attachment; filename="backup.csv"'
+	response['Content-Disposition'] = 'attachment; filename="backup-'+urltype+'.csv"'
 	writer = csv.writer(response)
 	projects = Project.objects.all()
+	if urltype == "compl":
+		projects = projects.filter(status = 2)
+	elif urltype == "ong":
+		projects = projects.filter(status = 0)
+	elif urltype == "fp":
+		projects = projects.filter(winprobability__gte=75,status=0)
+	elif urltype == "h1p":
+		projects = projects.filter(sopDate__year=TODAY.year,status=0)
+	elif urltype == "h2p":
+		projects = projects.filter(sopDate__year=TODAY.year+1,status=0)
+	elif urltype == "h3p":
+		projects = projects.filter(sopDate__year__gte=TODAY.year+2,status=0)
+	elif urltype == "npp":
+		projects = projects.filter(winprobability__lte=10,status = 0)
+	elif urltype == "sp":
+		projects = projects.filter(status = 1)
+	elif urltype == "lagging":
+		projects = projects.filter(status = 0,sopDate__lte = TODAY)
 	writer.writerow(['Project Title','Customer','Category','Price','Volume','Project Life','Start Of Production','Win Probability','Part Number','Status','Salesman','ENQ','NBO','QUOTE','IPO','PPAP','FPO','FRS'])
 	for p in projects:
 		row = [p.title, p.customer.name,p.get_product_display(),p.price,p.volume,p.life,p.sopDate.strftime("%d/%m/%Y"),p.winprobability,p.part_no,p.status,p.createdBy.username,'','','','','','','']
 		tasks = Task.objects.filter(project = p).order_by('workflow__id')
-		count = 10
+		count = 11
 		for t in tasks:
 			if t.end_date != None:
 				row[count] = t.end_date.strftime("%d/%m/%Y")
@@ -87,9 +105,9 @@ def createdb(request):
 		p.pop = 'Bho'
 		p.life=5
 		p.description = "Actual Data"
-		u1 = User.objects.get_or_create(username="ZGI",first_name="Zaheed",last_name="Inamdar")
-		u1 = User.objects.get_or_create(username="DMJ",first_name="Digvijay",last_name="Jaydev")
-		u1 = User.objects.get_or_create(username="TJS",first_name="Tushar",last_name="Sawant")
+		u1 = User.objects.get_or_create(username="ZGI",first_name="Zaheed",last_name="Inamdar",email="zginamdar@divgi-warner.com")
+		u1 = User.objects.get_or_create(username="DMJ",first_name="Digvijay",last_name="Jadhav",email="dmjadhav@divgi-warner.com")
+		u1 = User.objects.get_or_create(username="TJS",first_name="Tushar",last_name="Sawant",email="tjsawant@divgi-warner.com")
 		r = random.randrange(1,4)
 		p.createdBy = User.objects.get(pk=r)
 		p.save()

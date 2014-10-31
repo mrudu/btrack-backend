@@ -28,7 +28,7 @@ urlpatterns = patterns('',
 	(r'^api/', include(v1_api.urls)),
 	(r'^dbcreate/$',createdb),
 	(r'^taskcreate/$',tasksave),
-	(r'^download/$',backup),
+	(r'^download/(?P<urltype>[a-zA-Z]+)/$',backup),
     # Examples:
     # url(r'^$', 'backendapi.views.home', name='home'),
     # url(r'^backendapi/', include('backendapi.foo.urls')),
