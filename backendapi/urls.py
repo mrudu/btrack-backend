@@ -20,6 +20,7 @@ v1_api.register(UserResource())
 v1_api.register(RemarkResource())
 
 urlpatterns = patterns('',
+	(r'^api/v1/mailupdate/$', mailupdate),
 	(r'^api/v1/salesmanmatrix/$', usermatrix),
 	(r'^api/v1/progressupdate/$', progressUpdate),
 	(r'^api/v1/cpc/$', categoryPieChart),
@@ -29,6 +30,7 @@ urlpatterns = patterns('',
 	(r'^dbcreate/$',createdb),
 	(r'^taskcreate/$',tasksave),
 	(r'^download/(?P<urltype>[a-zA-Z]+)/$',backup),
+	(r'^remarksdownload/$',remarksbackup),
     # Examples:
     # url(r'^$', 'backendapi.views.home', name='home'),
     # url(r'^backendapi/', include('backendapi.foo.urls')),

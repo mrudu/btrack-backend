@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'colltool',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'rootpass',
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     }
@@ -165,7 +165,7 @@ LOGGING = {
 
 # Email Setup
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'lou.jarak@gmail.com'
-EMAIL_HOST_PASSWORD = '!!@#%*!#@!'
+EMAIL_HOST = 'smtp.192.168.0.1'
+EMAIL_HOST_USER = 'abd@divgi-warner.com'
+EMAIL_HOST_PASSWORD = 'abd'
 EMAIL_PORT = 587

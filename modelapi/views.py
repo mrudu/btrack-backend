@@ -42,6 +42,17 @@ def backup(request, urltype = ""):
 		writer.writerow(row)
 	return response
 
+def remarksbackup(request):
+	response = HttpResponse(content_type = 'text/csv')
+	response['Content-Disposition'] = 'attachment; filename="remarks.csv"'
+	writer = csv.writer(response)
+	writer.writerow(['Refernce No','Project title','Customer','Remark','Date'])
+	remarks = Remark.objects.all()
+	for r in remarks:
+		row = [r.project.reference,r.project.title,r.project.customer.name,r.content,r.created_on]
+		writer.writerow(row)
+	return response
+
 # View for population of project details into the database [Run this first and then run /taskcreate]. URL: /dbcreate
 def createdb(request):
 	w = Workflow.objects.get_or_create(name="RFQ/ENQ",stage=1,description="Request for Quote/Enquiry")
