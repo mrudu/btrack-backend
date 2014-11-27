@@ -1,6 +1,6 @@
 # Create your views here.
 from django.http import HttpResponse
-from modelapi.models import Project, Task, Workflow, Customer, User, OppProChe
+from modelapi.models import Project, Task, Workflow, Customer, User
 import json, csv, datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
@@ -24,6 +24,11 @@ def usermatrix(request):
 		wtc = total.filter(product="WTC").count()
 		oth = total.filter(product="Oth").count()
 		data[x.id] = {'name':x.first_name,'username':x.username,'id':x.id,'tot':total.count(),'com':completed,'sus':suspended,'act':active,'tc':tc,'syn':syn,'ptu':ptu,'comp':comp,'ace':ace,'wtc':wtc,'oth':oth}
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+# View for the Customer-Generated and Self-Generated page. URL:/api/v1/generated
+def generated(request):
+	data = {}
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 # View for the Dashboard page. URL:/api/v1/dashboard

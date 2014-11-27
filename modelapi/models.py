@@ -17,18 +17,7 @@ CATEGORY_CHOICES = (
 PRODUCTION_CHOICES = (('Bho', 'Bhosari'),('Sir', 'Sirsi'))
 GENERATED_CHOICES = (('S','Self Generated'),('C','Customer Generated'))
 
-class PossibleOpportunities(models.Model):
-	customer = models.CharField(max_length = 100, blank = False)
-	product = models.CharField(max_length = 100, blank = False)
-	description = models.CharField(max_length = 800, blank = False)
-	phone = models.CharField( max_length = 10, blank = False)
-	name = models.CharField(max_length = 10)
-	created_on = models.DateTimeField(auto_now_add = True)
 
-	class Meta:
-		ordering = ['created_on']
-	def __unicode__self(self):
-		return self.customer
 # Refers to the Companies who buy DW's products. eg. "Mahindra and Mahindra"
 class Customer(models.Model):
 	name = models.CharField(max_length = 100, blank=False)
@@ -81,71 +70,6 @@ class Project(models.Model):
 		except ObjectDoesNotExist:
 			return
 
-class OppProChe(models.Model):
-	project = models.ForeignKey(Project)
-	NDA = models.NullBooleanField(default=False, blank=True,null=True)
-	PDS = models.NullBooleanField(default=False, blank=True,null=True)
-	PFR = models.NullBooleanField(default=False, blank=True,null=True)
-	NBO = models.NullBooleanField(blank=True,default=False, null=True)
-	TFC = models.NullBooleanField(blank=True,default=False, null=True)
-	IRS = models.NullBooleanField(blank=True,default=False, null=True)
-	FRS = models.NullBooleanField(blank=True,default=False, null=True)
-	ProjectApproved = models.NullBooleanField(blank=True,default=False, null=True)
-	QUO = models.NullBooleanField(blank=True,default=False, null=True)
-	LOI = models.NullBooleanField(blank=True,default=False, null=True)
-	CCRecieve = models.NullBooleanField(blank=True,default=False, null=True)
-	CCReview = models.NullBooleanField(blank=True,default=False, null=True)
-	CCFrozen = models.NullBooleanField(blank=True,default=False, null=True)
-	PPAPPORecieve = models.NullBooleanField(blank=True,default=False, null=True)
-	PPAPPOReview = models.NullBooleanField(blank=True,default=False, null=True)
-	POAccepted = models.NullBooleanField(blank=True,default=False, null=True)
-	def __unicode__(self):
-		return self.project
-	def save(self, *args, **kwargs):
-		if self.PFR:
-			if not self.PDS:
-				return
-		if self.NBO:
-			if not self.PFR:
-				return
-		if self.TFC:
-			if not self.NBO:
-				return
-		if self.IRS:
-			if not self.TFC:
-				return
-		if self.FRS:
-			if not self.IRS:
-				return
-		if self.ProjectApproved:
-			if not self.FRS:
-				return
-		if self.QUO:
-			if not self.ProjectApproved:
-				return
-		if self.LOI:
-			if not self.QUO:
-				return
-		if self.CCRecieve:
-			if not self.LOI:
-				return
-		if self.CCReview:
-			if not self.CCRecieve:
-				return
-		if self.CCFrozen:
-			if not self.CCReview:
-				return
-		if self.PPAPPORecieve:
-			if not self.CCFrozen:
-				return
-		if self.PPAPPOReview:
-			if not self.PPAPPORecieve:
-				return
-		if self.POAccepted:
-			if not self.PPAPPOReview:
-				return	
-		super(OppProChe, self).save(*args, **kwargs)
-
 # Daily Commentory on the Project
 class Remark(models.Model):
 	createdBy = models.ForeignKey(User) # Links to the User who wrote the remark. Auto-generated - based on session of user.
@@ -157,14 +81,6 @@ class Remark(models.Model):
 	def __unicode__(self):
 		return self.content
 
-#Different forms which need to be filled
-class Form(models.Model):
-	name = models.CharField(max_length = 100)
-	file_path = models.FileField(upload_to = 'forms')
-	description = models.CharField(max_length = 800)
-	def __unicode__(self):
-		return self.name
-
 
 class Workflow(models.Model):
 	name = models.CharField(max_length = 100)
@@ -175,17 +91,6 @@ class Workflow(models.Model):
 
 	class Meta:
 		ordering = ['stage']
-
-class WTask(models.Model):
-	name = models.CharField(max_length = 100)
-	description = models.CharField(max_length = 800, blank = True)
-	workflow = models.ForeignKey(Workflow)
-	form = models.ForeignKey(Form)
-	substep = models.IntegerField(default = 1)
-	class Meta:
-		ordering = ['workflow', 'substep']
-	def __unicode__(self):
-		return self.name
 
 class Task(models.Model): 
 	workflow = models.ForeignKey(Workflow)
@@ -200,26 +105,10 @@ class Task(models.Model):
 		unique_together = (('workflow','project'),)
 	def __unicode__(self):
 		return self.project.title
-	def save(self, *args, **kwargs):
-		project = Project.objects.get(pk=self.project_id)
-		user = User.objects.get(pk=1)
-		workflow = Workflow.objects.get(pk=self.workflow_id)
-		content = workflow.name+": "+self.remarks
-		r = Remark.objects.create(createdBy=user,content=content,project=project)
-		super(Task, self).save(*args, **kwargs)
-
 	
-class STask(models.Model):
-	name = models.CharField(max_length = 100)
-	description = models.CharField(max_length = 800)
-	start_date = models.DateTimeField(default=datetime.datetime.now,blank=True)
-	due_date = models.DateTimeField()
-	end_date = models.DateTimeField(blank = True,null=True)
-	task = models.ForeignKey(Task)
-	wtask = models.ForeignKey(WTask)
-	assigned_to = models.ForeignKey(User, related_name = "assigned_to")
-	assigned_by = models.ForeignKey(User, related_name = "assigned_by")
-	identification = models.CharField(max_length = 50)
-	def __unicode__(self):
-		return self.name
-
+class Track(models.Model):
+	month = models.CharField(max_length = 3)
+	suspended = models.IntegerField(default = 0)
+	active = models.IntegerField(default = 0)
+	completed = models.IntegerField(default = 0)
+	year = models.CharField(max_length = 4)

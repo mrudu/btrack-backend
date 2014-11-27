@@ -56,12 +56,6 @@ class ProjectResource(ModelResource):
 			"tot_revenue":ALL
 		}
 
-class FormResource(ModelResource):
-	class Meta:
-		queryset = Form.objects.all()
-		resource_name = 'form'
-		authorization = Authorization()
-
 class WorkflowResource(ModelResource):
 	class Meta:
 		queryset = Workflow.objects.all()
@@ -74,13 +68,6 @@ class WorkflowResource(ModelResource):
 		ordering = {
 			'stage': ALL
 		}
-
-class WTaskResource(ModelResource):
-	workflow = fields.ForeignKey(WorkflowResource, 'workflow')
-	class Meta:
-		queryset = WTask.objects.all()
-		resource_name = 'workflow_task'
-		authorization = Authorization()
 
 class TaskResource(ModelResource):
 	project = fields.ForeignKey(ProjectResource,'project')
@@ -106,16 +93,5 @@ class RemarkResource(ModelResource):
 		authorization = Authorization()
 		filtering = {
 			'project' :ALL_WITH_RELATIONS
-		}
-
-# Opportunity Progress Checklist
-class OPCResource(ModelResource):
-	project = fields.ToOneField(ProjectResource, 'project', full=True)
-	class Meta:
-		queryset = OppProChe.objects.all()
-		resource_name = 'opc'
-		authorization = Authorization()
-		filtering = {
-			'project': ALL_WITH_RELATIONS
 		}
 

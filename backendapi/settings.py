@@ -122,7 +122,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'tastypie',
     'modelapi',
-    'report'
+    'report',
+    'apqp'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -164,8 +165,9 @@ LOGGING = {
 }
 
 # Email Setup
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.192.168.0.1'
+DEFAULT_FROM_EMAIL = 'abd@divgi-warner.com'
+EMAIL_USE_TLS = False
+EMAIL_HOST = '192.168.0.1'
 EMAIL_HOST_USER = 'abd@divgi-warner.com'
 EMAIL_HOST_PASSWORD = 'abd'
-EMAIL_PORT = 587
+EMAIL_PORT = 25

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from modelapi.models import *
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 import datetime
 class Command(BaseCommand):
 	help = 'Checks mail'
@@ -15,10 +15,12 @@ class Command(BaseCommand):
 				count += 1
 				subject = "ATTENTION: "+p.title
 				message = "Note: This mail is system generated. Please do not reply. The Project "+ p.title+" has not been attended to for the last "+delay+" days. Project Owner: "+p.createdBy.first_name
-				send_mail(subject,message,"lou.jarak@gmail.com",[p.createdBy.email],fail_silently=False)
+				email = EmailMessage(subject,message,to=[p.createdBy.email])
+				email.send()
 			elif delay%15 == 0 and delay>15:
 				count += 1
 				subject = "ATTENTION: "+p.title
 				message = "Note: This mail is system generated. Please do not reply. The Project "+ p.title+" has not been attended to for the last "+str(delay)+" days. Project Owner: "+p.createdBy.first_name
-				send_mail(subject,message,"lou.jarak@gmail.com",[p.createdBy.email,'amkoppikar@divgi-warner.com'],fail_silently=False)
+				email = EmailMessage(subject,message,to=[p.createdBy.email,'amkoppikar@divgi-warner.com'])
+				email.send()
 		self.stdout.write('Successfully sent mail for '+str(count))
